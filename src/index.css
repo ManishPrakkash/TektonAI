@@ -92,20 +92,137 @@ body.dark-mode {
 /* App Structure */
 .app-container {
   width: 100%;
-  max-width: 800px;
   height: 100vh;
+  display: flex;
+  flex-direction: row; /* Horizontal layout for Sidebar + Main */
+  z-index: 10;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+  width: 300px;
+  height: 100%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(40px);
+  border-right: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  padding: 40px 24px;
+  gap: 32px;
+  z-index: 50;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden; /* Ensure content is clipped when collapsed */
+}
+
+.sidebar.collapsed {
+    width: 0;
+    padding: 0;
+    margin: 0;
+    transform: translateX(-100%);
+    border-right: none;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.sidebar-toggle {
+    position: fixed;
+    top: 32px;
+    left: 24px;
+    width: 44px;
+    height: 44px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    color: var(--text-main);
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
+}
+
+body.dark-mode .sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-logo {
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: -1.5px;
+  margin-bottom: 20px;
+  color: var(--text-main);
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-main);
+  transform: translateX(4px);
+}
+
+body.dark-mode .nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item.active {
+  background: var(--bg-primary);
+  color: var(--text-main);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Main Content Area */
+.main-content {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
   padding: 20px;
-  z-index: 10;
   position: relative;
   transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.app-container.active-session {
+.main-content.active-session {
   justify-content: flex-start;
 }
 
@@ -140,6 +257,7 @@ body.dark-mode {
 /* Chat History Display */
 .chat-display {
   width: 100%;
+  max-width: 800px;
   margin-bottom: 20px;
   overflow-y: auto;
   display: flex;
@@ -149,7 +267,7 @@ body.dark-mode {
   scrollbar-width: none;
 }
 
-.app-container.active-session .chat-display {
+.main-content.active-session .chat-display {
   flex-grow: 1;
 }
 
