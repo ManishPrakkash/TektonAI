@@ -1,111 +1,354 @@
+/* 
+  MELLOW - DIA INSPIRED DESIGN SYSTEM
+  Minimalist Light Mode | Glassmorphism | Ethereal Aesthetics
+*/
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
+  --bg-primary: #FFFFFF;
+  --text-main: #000000;
+  --text-muted: #86868b;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --accent-button: #000000;
+  --accent-glow-1: rgba(199, 210, 254, 0.65); /* Vibrant Top Lavender */
+  --accent-glow-2: rgba(254, 215, 170, 0.65); /* Vibrant Bottom Amber */
+  --accent-glow-3: rgba(255, 175, 204, 0.45); /* Mid Pink Soft */
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --transition-theme: background-color 0.5s ease, color 0.5s ease;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+/* Obsidian Dark Mode Variables */
+body.dark-mode {
+  --bg-primary: #0F1214;
+  --text-main: #FFFFFF;
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --accent-button: #FFFFFF;
+  --accent-glow-1: rgba(44, 94, 80, 0.15); /* Deep Emerald */
+  --accent-glow-2: rgba(30, 41, 59, 0.2);   /* Deep Blue */
+  --accent-glow-3: rgba(197, 164, 126, 0.05); /* Soft Gold Glow */
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+* {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 body {
-  margin: 0;
+  background: radial-gradient(circle at center, #FFFFFF 0%, #FDFDFF 100%);
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-main);
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
+body.dark-mode {
+  background: radial-gradient(circle at center, #0F1214 0%, #050505 100%);
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ambient Aura Glows */
+.aura-field {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.glow {
+  position: absolute;
+  filter: blur(180px);
+  pointer-events: none;
+  animation: float-glow 30s infinite alternate ease-in-out;
+}
+
+.glow-1 { width: 140vw; height: 60vh; background: var(--accent-glow-1); top: -30vh; left: -20vw; border-radius: 50%; }
+.glow-2 { width: 160vw; height: 70vh; background: var(--accent-glow-2); bottom: -35vh; left: -30vw; border-radius: 50%; animation-delay: -5s; }
+.glow-3 { width: 90vw; height: 60vh; background: var(--accent-glow-3); top: -25vh; right: -15vw; border-radius: 50%; opacity: 0.5; animation-delay: -10s; }
+
+@keyframes float-glow {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(100px, 50px) scale(1.1); }
+}
+
+/* App Structure */
+.app-container {
+  width: 100%;
+  max-width: 800px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  z-index: 10;
+  position: relative;
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-container.active-session {
+  justify-content: flex-start;
+}
+
+/* Logo & Header */
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+  animation: fadeInDown 1s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.logo-text {
+  font-size: 2.2rem;
   font-weight: 500;
-  color: var(--text-h);
+  letter-spacing: -2px;
+  margin-bottom: 12px;
+  text-transform: lowercase;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+.hero-text {
+  font-size: 5rem;
+  font-weight: 500;
+  letter-spacing: -3.5px;
+  line-height: 0.95;
+  margin-bottom: 40px;
+  color: var(--text-main);
+  opacity: 0.95;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* Chat History Display */
+.chat-display {
+  width: 100%;
+  margin-bottom: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 10px;
+  scrollbar-width: none;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.app-container.active-session .chat-display {
+  flex-grow: 1;
+}
+
+.chat-display::-webkit-scrollbar { display: none; }
+
+.message-bubble {
+  padding: 16px 28px;
+  border-radius: 32px;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 85%;
+  transition: all 0.5s ease;
+  animation: slideInUp 0.5s ease forwards;
+}
+
+.message-content p {
+  margin: 0.5rem 0;
+}
+
+.message-content p:first-child {
+  margin-top: 0;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.message-content ul, .message-content ol {
+  margin: 0.8rem 0;
+  padding-left: 1.5rem;
+}
+
+.message-bubble.user {
+  align-self: flex-end;
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--text-main);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.message-bubble.bot {
+  align-self: flex-start;
+  text-align: left;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+}
+
+/* Floating Pill Input Area */
+.input-pill-container {
+  width: 100%;
+  max-width: 600px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  padding: 12px 12px 12px 24px;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 60px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.input-pill-container:focus-within {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.08);
+}
+
+.user-input {
+  flex-grow: 1;
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  outline: none;
+  color: var(--text-main);
+}
+
+.user-input::placeholder {
+  color: var(--text-muted);
+}
+
+.send-action {
+  width: 44px;
+  height: 44px;
+  background: var(--accent-button);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.send-action:hover {
+  transform: scale(1.05);
+}
+
+.send-action svg { stroke: white; }
+body.dark-mode .send-action { color: black; }
+body.dark-mode .send-action svg { stroke: black; }
+
+/* Theme Toggle Button */
+.theme-toggle {
+  position: fixed;
+  top: 32px;
+  right: 32px;
+  width: 44px;
+  height: 44px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  color: var(--text-main);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Animations */
+.sub-actions {
+  margin-top: 32px;
+  display: flex;
+  gap: 20px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.action-link {
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* 2D Neural Node Animation */
+.neural-graph {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* Theme View Transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  z-index: 999;
+  animation: 0.8s cubic-bezier(0.19, 1, 0.22, 1) revealFromButton;
+}
+
+@keyframes revealFromButton {
+  from { clip-path: circle(0% at calc(100% - 54px) 54px); }
+  to { clip-path: circle(150% at calc(100% - 54px) 54px); }
+}
+
+/* Fallback Wave */
+.theme-wave {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  pointer-events: none;
+  background: var(--bg-primary);
+  clip-path: circle(0% at calc(100% - 54px) 54px);
+}
+
+.theme-wave.animate {
+  clip-path: circle(150% at calc(100% - 54px) 54px);
+  transition: clip-path 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Keyframes */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
