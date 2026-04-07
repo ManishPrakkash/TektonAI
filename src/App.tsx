@@ -247,9 +247,12 @@ const ResumeModal = ({ isOpen, onClose, messages }: { isOpen: boolean, onClose: 
 };
 
 // --- Workspace Component ---
+// --- Workspace Component (CHAT INTERFACE) ---
 const Workspace = () => {
   const { sessionId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
+  
   const tool = location.pathname.includes('resumebuilder') ? 'resumebuilder' : 
                location.pathname.includes('analyzer') ? 'analyzer' : 
                location.pathname.includes('jobs') ? 'jobs' : 
@@ -281,7 +284,7 @@ const Workspace = () => {
 3. PERFORMANCE HIGHLIGHTS: Given your LeetCode standing, which specific algorithmic focus best represents your problem-solving style for this resume?` 
           }]);
         } else {
-          setMessages([{ role: 'bot', content: `Ready to assist with your ${tool.replace('resumebuilder', 'Resume Builder')}. How can we start?` }]);
+          setMessages([{ role: 'bot', content: `Ready to assist with your ${tool.replace('resumebuilder', 'Resume Builder').replace('analyzer', 'Resume Analyzer')}. How can we start?` }]);
         }
       }
     } else {
@@ -303,8 +306,8 @@ const Workspace = () => {
     setMessages(newMessages);
     setIsTyping(true);
 
-    // Automation for generation - triggers'
-    if (userMsg.toLowerCase().includes('generate') || userMsg.toLowerCase().includes('preview') || newMessages.filter(m => m.role === 'user').length >= 3) {
+    // Automation for generation - triggers
+    if (tool === 'resumebuilder' && (userMsg.toLowerCase().includes('generate') || userMsg.toLowerCase().includes('preview') || newMessages.filter(m => m.role === 'user').length >= 3)) {
         setTimeout(() => {
             const botResponse = newMessages.filter(m => m.role === 'user').length >= 3 
                 ? 'I have gathered sufficient technical details. Initializing the Gold Standard formatting for your resume now...' 
@@ -353,18 +356,20 @@ const Workspace = () => {
 
   return (
     <main className="main-content active-session">
-      {/* Workspace Header with Manual Preview Toggle */}
+      {/* Workspace Header */}
       <div className="workspace-header">
         <div className="tool-info">
           <span className="tool-indicator"></span>
-          <h2>{tool === 'resumebuilder' ? 'Resume Builder' : tool.toUpperCase()}</h2>
+          <h2>{tool === 'resumebuilder' ? 'Resume Builder' : tool === 'analyzer' ? 'Resume Analyzer' : tool.toUpperCase()}</h2>
         </div>
-        <div className="header-actions">
-          <button className="preview-action-btn" onClick={() => setShowResume(true)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-            Preview Resume
-          </button>
-        </div>
+        {tool === 'resumebuilder' && (
+          <div className="header-actions">
+            <button className="preview-action-btn" onClick={() => setShowResume(true)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              Preview Resume
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="chat-display" ref={chatDisplayRef}>
@@ -374,94 +379,116 @@ const Workspace = () => {
             <h1>New Session</h1>
             <p>Paste your content or describe your goal to begin.</p>
           </div>
-          <div 
-            className={`nav-item ${activeTab === 'grammar' ? 'active' : ''}`}
-            onClick={() => setActiveTab('grammar')}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
-            Grammar Check
+        )}
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`message-bubble ${msg.role}`}>
+            <div className="message-content">
+              <p>{msg.content}</p>
+            </div>
           </div>
-        </nav>
+        ))}
+        {isTyping && (
+          <div className="message-bubble bot">
+            <div className="message-content">
+              <p>Thinking...</p>
+            </div>
+          </div>
+        )}
+      </div>
 
-        <div className="sidebar-footer">
-          v1.0.4 - Enterprise Edition
-        </div>
-      </aside>
+      <div className="input-pill-container">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#86868b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input 
+          type="text" 
+          className="user-input" 
+          placeholder={tool === 'analyzer' ? "Paste your resume or ask for feedback..." : "Ask anything..."} 
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          autoComplete="off"
+        />
+        <button className="send-action" onClick={handleSend} disabled={isTyping}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+          </svg>
+        </button>
+      </div>
 
-      {/* Main Content */}
-      <main className={`main-content ${isSessionActive ? 'active-session' : ''}`}>
-        {/* Ambient Aura */}
+      {showResume && <ResumeModal isOpen={showResume} onClose={() => setShowResume(false)} messages={messages} />}
+    </main>
+  );
+};
+
+// --- Home Dashboard ---
+const Home = () => {
+  return (
+    <div className="main-inner">
+      <div className="logo-container">
+        <div className="logo-text">tekton.</div>
+        <h1 className="hero-text">Your AI Career<br />OS Architecture.</h1>
+      </div>
+      <div className="sub-actions">
+        <span>Trusted by elite engineers. <a className="action-link" href="#">Explore Tools &rarr;</a></span>
+      </div>
+    </div>
+  );
+};
+
+// --- App Inner Component (Routing & Layout) ---
+const AppInner = () => {
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isDark, setIsDark] = useState(true);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const location = useLocation();
+
+  const toggleTheme = () => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setIsDark(!isDark);
+      setIsTransitioning(false);
+    }, 700);
+  };
+
+  useEffect(() => {
+    document.body.classList.toggle('dark-mode', isDark);
+  }, [isDark]);
+
+  return (
+    <div className={`app-container ${isDark ? 'dark' : 'light'}`}>
+      <AppSidebar isOpen={isSidebarOpen} toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
+      
+      <main className={`main-content ${location.pathname !== '/' ? 'active-session' : ''}`}>
         <div className="aura-field">
           <div className="glow glow-1"></div>
           <div className="glow glow-2"></div>
           <div className="glow glow-3"></div>
         </div>
 
-      {/* Theme Transition Overlay */}
-      <div className={`theme-wave ${isTransitioning ? 'animate' : ''}`}></div>
+        <div className={`theme-wave ${isTransitioning ? 'animate' : ''}`}></div>
 
-      {/* Global Theme Toggle */}
-      <button className="theme-toggle" onClick={toggleTheme}>
-        {isDark ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        ) : (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        )}
-      </button>
-
-        {/* Hero Section */}
-        {!isSessionActive && (
-          <div className="logo-container">
-            <div className="logo-text">tekton.</div>
-            <h1 className="hero-text">Resume<br />Analyzer</h1>
-          </div>
-        )}
-
-        {/* Chat Area */}
-        <div className="chat-display" ref={chatDisplayRef}>
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`message-bubble ${msg.role}`}>
-              <div className="message-content">
-                <p>{msg.content}</p>
-              </div>
-            </div>
-          ))}
-          {isTyping && (
-            <div className="message-bubble bot">
-              <div className="message-content">
-                <p>Thinking...</p>
-              </div>
-            </div>
+        <button className="theme-toggle" onClick={toggleTheme}>
+          {isDark ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          ) : (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           )}
-        </div>
+        </button>
 
-        {/* Input Area */}
-        <div className="input-pill-container">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#86868b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input 
-            ref={inputRef}
-            type="text" 
-            className="user-input" 
-            placeholder={activeTab === 'analyzer' ? "Paste your resume or ask for feedback..." : "Ask anything..."} 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            autoComplete="off"
-          />
-          <button className="send-action" onClick={handleSend} disabled={isTyping}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="19" x2="12" y2="5"></line>
-              <polyline points="5 12 12 5 19 12"></polyline>
-            </svg>
-          </button>
-        </div>
-
-        <div className="sub-actions">
-          <span>Explore premium features? <a className="action-link" href="#">Get Tekton Pro &rarr;</a></span>
-        </div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/resumebuilder" element={<Workspace />} />
+          <Route path="/resumebuilder/:sessionId" element={<Workspace />} />
+          <Route path="/analyzer" element={<Workspace />} />
+          <Route path="/analyzer/:sessionId" element={<Workspace />} />
+          <Route path="/jobs" element={<Workspace />} />
+          <Route path="/jobs/:sessionId" element={<Workspace />} />
+          <Route path="/grammar" element={<GrammarCheck />} />
+          <Route path="/format" element={<FormatChecker />} />
+        </Routes>
       </main>
     </div>
   );
