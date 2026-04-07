@@ -14,6 +14,7 @@ interface ChatSession {
   timestamp: number;
 }
 
+
 // --- Unified Sidebar ---
 const AppSidebar = ({ isOpen, toggleSidebar }: { isOpen: boolean, toggleSidebar: () => void }) => {
   const navigate = useNavigate();
@@ -110,19 +111,136 @@ const AppSidebar = ({ isOpen, toggleSidebar }: { isOpen: boolean, toggleSidebar:
               {sessions.length === 0 && <div className="empty-history">No history yet</div>}
             </div>
 
-            <div className="sidebar-footer">
-              <div className="user-profile">
-                <div className="avatar">MP</div>
-                <div className="user-info">
-                  <span className="user-name">Manish Prakkash</span>
-                  <span className="user-plan">Elite Plan</span>
-                </div>
-              </div>
-            </div>
+    <div className="sidebar-footer">
+      <div className="user-card">
+        <div className="user-avatar-gradient">MP</div>
+        <div className="user-details">
+          <div className="user-name">Manish Prakkash</div>
+          <div className="user-status-pill">Elite Plan</div>
+        </div>
+        <button className="user-settings-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+        </button>
+      </div>
+    </div>
           </>
         )}
       </aside>
     </>
+  );
+};
+
+// --- Utility: Derive Resume Data from Messages ---
+const deriveResumeData = (messages: Message[]) => {
+  const data: any = {
+    name: "MANISH PRAKKASH MS",
+    email: "manishprakkash.ms2024cse@sece.ac.in",
+    education: [],
+    projects: [],
+    skills: {}
+  };
+
+  messages.forEach(msg => {
+    const text = msg.content;
+    // Simple parsing logic: look for keywords or structures
+    if (text.includes("Project:")) {
+      const match = text.match(/Project:\s*([^\n]+)/);
+      if (match) {
+        const name = match[1].trim();
+        if (!data.projects.find((p: any) => p.title === name)) {
+          data.projects.push({ title: name, date: "2025", bullets: [] });
+        }
+      }
+    }
+    // Extract bullets if they exist in a list
+    if (text.includes("Bullet:")) {
+      const match = text.match(/Bullet:\s*([^\n]+)/);
+      if (match && data.projects.length > 0) {
+        data.projects[data.projects.length - 1].bullets.push(match[1].trim());
+      }
+    }
+  });
+
+  // Fallback defaults if empty
+  if (data.projects.length === 0) {
+    data.projects = [
+      { 
+        title: "Artifex - AI Agent Builder Platform", 
+        date: "Jan 2025", 
+        stack: "FastAPI, Next.js, Multi-Agent Systems",
+        bullets: ["Engineered an AI agent builder to transform natural language into multi-agent systems.", "Implemented automated architecture design logic."]
+      },
+      { 
+        title: "Cloud Meter - Cost Estimator", 
+        date: "Mar 2025", 
+        stack: "Node.js, AST Parsing, CLI",
+        bullets: ["Built a CLI tool to analyze backend codebases for cost optimization.", "Implemented AST-based static analysis."]
+      }
+    ];
+  }
+  return data;
+};
+
+// --- Resume Modal ---
+const ResumeModal = ({ isOpen, onClose, messages }: { isOpen: boolean, onClose: () => void, messages: Message[] }) => {
+  if (!isOpen) return null;
+  const data = deriveResumeData(messages);
+
+  return (
+    <div className="resume-modal-overlay" onClick={onClose}>
+      <div className="resume-paper" onClick={e => e.stopPropagation()} contentEditable suppressContentEditableWarning>
+        <div className="resume-header">
+          <h1 className="resume-name">{data.name}</h1>
+          <div className="resume-contact">
+            <span>{data.email}</span>
+            <span>|</span>
+            <span>+91 8778984328</span>
+            <span>|</span>
+            <span>LinkedIn</span>
+            <span>|</span>
+            <span>GitHub</span>
+          </div>
+        </div>
+
+        <div className="resume-section">
+          <h2 className="resume-section-title">Education</h2>
+          <div className="resume-entry">
+            <span className="entry-title">Sri Eshwar College of Engineering | B.E. Computer Science</span>
+            <span className="entry-date">2024 - 2028</span>
+          </div>
+        </div>
+
+        <div className="resume-section">
+          <h2 className="resume-section-title">Projects</h2>
+          {data.projects.map((proj: any, idx: number) => (
+            <div key={idx} style={{ marginBottom: '15px' }}>
+              <div className="resume-entry">
+                <span className="entry-title">{proj.title}</span>
+                <span className="entry-date">{proj.date}</span>
+              </div>
+              {proj.stack && <div className="tech-stack">Stack: {proj.stack}</div>}
+              <ul className="resume-list">
+                {proj.bullets.map((b: string, i: number) => <li key={i}>{b}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <div className="resume-section">
+          <h2 className="resume-section-title">Technical Skills</h2>
+          <table className="skills-table">
+            <tbody>
+              <tr><td className="skill-category">Languages:</td><td>C, C++, JavaScript (ES6+), Bash, Python</td></tr>
+              <tr><td className="skill-category">Frameworks:</td><td>NodeJS, ExpressJS, ReactJS, ReactNative, FastAPI</td></tr>
+              <tr><td className="skill-category">Database:</td><td>MongoDB, PostgreSQL, MySQL, Firebase, Supabase, Redis</td></tr>
+              <tr><td className="skill-category">Deployment:</td><td>Vercel, Netlify, Render, Docker, Nginx</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <button className="generate-btn" style={{ right: '40px', bottom: '20px', top: 'auto', background: '#000', color: '#fff' }} onClick={() => window.print()}>Download PDF</button>
+      <button className="generate-btn" style={{ right: '40px', bottom: '70px', top: 'auto', background: '#fff', color: '#000', border: '1px solid #000' }} onClick={onClose}>Close Preview</button>
+    </div>
   );
 };
 
@@ -138,14 +256,32 @@ const Workspace = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showResume, setShowResume] = useState(false);
   const chatDisplayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (sessionId) {
       const historyKey = `history_${tool}_${sessionId}`;
       const saved = localStorage.getItem(historyKey);
-      if (saved) setMessages(JSON.parse(saved));
-      else setMessages([{ role: 'bot', content: `Ready to assist with your ${tool.replace('resumebuilder', 'Resume Builder')}. How can we start?` }]);
+      if (saved) {
+        setMessages(JSON.parse(saved));
+      } else {
+        // Special discovery greeting for Manish's specific session
+        if (sessionId === 'session_1775539040426') {
+          setMessages([{ 
+            role: 'bot', 
+            content: `Greetings Manish! I have reviewed your portfolio. Your work on Artifex and Cloud Meter represents significant engineering depth. To finalize your Gold Standard resume, I have three strategic questions:
+
+1. EXECUTIVE DISCOVERY: Regarding Artifex, what specific orchestration logic ensured agentic reliability and prevented recursive execution loops?
+
+2. TECHNICAL ARCHITECTURE: How did you bridge AST-based code analysis with precise cost-modeling in the Cloud Meter CLI?
+
+3. PERFORMANCE HIGHLIGHTS: Given your LeetCode standing, which specific algorithmic focus best represents your problem-solving style for this resume?` 
+          }]);
+        } else {
+          setMessages([{ role: 'bot', content: `Ready to assist with your ${tool.replace('resumebuilder', 'Resume Builder')}. How can we start?` }]);
+        }
+      }
     } else {
       setMessages([]);
     }
@@ -165,6 +301,20 @@ const Workspace = () => {
     setMessages(newMessages);
     setIsTyping(true);
 
+    // Automation for generation - triggers'
+    if (userMsg.toLowerCase().includes('generate') || userMsg.toLowerCase().includes('preview') || newMessages.filter(m => m.role === 'user').length >= 3) {
+        setTimeout(() => {
+            const botResponse = newMessages.filter(m => m.role === 'user').length >= 3 
+                ? 'I have gathered sufficient technical details. Initializing the Gold Standard formatting for your resume now...' 
+                : 'Understood. Initializing Gold Standard Resume formatting... Layout is now ready for your review.';
+            
+            setMessages([...newMessages, { role: 'bot', content: botResponse }]);
+            setShowResume(true);
+            setIsTyping(false);
+        }, 1500);
+        return;
+    }
+
     try {
       const response = await fetch('http://localhost:5001/chat-builder', {
           method: 'POST',
@@ -178,11 +328,13 @@ const Workspace = () => {
         const { done, value } = await (reader?.read() || { done: true, value: null });
         if (done) break;
         botTxt += decoder.decode(value);
-        setMessages([...newMessages, { role: 'bot', content: botTxt }]);
+        const filteredTxt = botTxt.replace(/\*/g, '');
+        setMessages([...newMessages, { role: 'bot', content: filteredTxt }]);
       }
       
       if (sessionId) {
-        localStorage.setItem(`history_${tool}_${sessionId}`, JSON.stringify([...newMessages, { role: 'bot', content: botTxt }]));
+        const finalBotTxt = botTxt.replace(/\*/g, '');
+        localStorage.setItem(`history_${tool}_${sessionId}`, JSON.stringify([...newMessages, { role: 'bot', content: finalBotTxt }]));
         const sessions = JSON.parse(localStorage.getItem(`sessions_${tool}`) || '[]');
         const idx = sessions.findIndex((s: any) => s.id === sessionId);
         if (idx !== -1 && sessions[idx].title === 'New Chat') {
@@ -199,6 +351,20 @@ const Workspace = () => {
 
   return (
     <main className="main-content active-session">
+      {/* Workspace Header with Manual Preview Toggle */}
+      <div className="workspace-header">
+        <div className="tool-info">
+          <span className="tool-indicator"></span>
+          <h2>{tool === 'resumebuilder' ? 'Resume Builder' : tool.toUpperCase()}</h2>
+        </div>
+        <div className="header-actions">
+          <button className="preview-action-btn" onClick={() => setShowResume(true)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            Preview Resume
+          </button>
+        </div>
+      </div>
+
       <div className="chat-display" ref={chatDisplayRef}>
         {messages.length === 0 && !sessionId && (
           <div className="workspace-hero">
@@ -214,11 +380,13 @@ const Workspace = () => {
       </div>
 
       <div className="input-pill-container" style={{ margin: '0 auto 40px' }}>
-        <input type="text" className="user-input" placeholder="Compose..." value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} />
+        <input type="text" className="user-input" placeholder="Refine your details..." value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} />
         <button className="send-action" onClick={handleSend} disabled={isTyping || !sessionId}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
         </button>
       </div>
+
+      <ResumeModal isOpen={showResume} onClose={() => setShowResume(false)} messages={messages} />
     </main>
   );
 };
