@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import './App.css';
+import GrammarCheck from './GrammarCheck';
+import FormatChecker from './FormatChecker';
 
 // --- Types ---
 interface Message {
@@ -372,57 +374,28 @@ const Workspace = () => {
             <h1>New Session</h1>
             <p>Paste your content or describe your goal to begin.</p>
           </div>
-        )}
-        {messages.map((msg, idx) => (
-          <div key={idx} className={`message-bubble ${msg.role}`}><div className="message-content"><p>{msg.content}</p></div></div>
-        ))}
-        {isTyping && <div className="message-bubble bot"><div className="message-content">...</div></div>}
-      </div>
+          <div 
+            className={`nav-item ${activeTab === 'grammar' ? 'active' : ''}`}
+            onClick={() => setActiveTab('grammar')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+            Grammar Check
+          </div>
+        </nav>
 
-      <div className="input-pill-container" style={{ margin: '0 auto 40px' }}>
-        <input type="text" className="user-input" placeholder="Refine your details..." value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} />
-        <button className="send-action" onClick={handleSend} disabled={isTyping || !sessionId}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-        </button>
-      </div>
+        <div className="sidebar-footer">
+          v1.0.4 - Enterprise Edition
+        </div>
+      </aside>
 
-      <ResumeModal isOpen={showResume} onClose={() => setShowResume(false)} messages={messages} />
-    </main>
-  );
-};
-
-// --- Root Application Component ---
-const AppInner = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isDark, setIsDark] = useState(() => localStorage.getItem('theme') === 'dark');
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
-  useEffect(() => {
-    if (isDark) document.body.classList.add('dark-mode');
-    else document.body.classList.remove('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  }, [isDark]);
-
-  const toggleTheme = () => {
-    if ((document as any).startViewTransition) {
-      (document as any).startViewTransition(() => setIsDark(!isDark));
-    } else {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setIsDark(!isDark);
-        setTimeout(() => setIsTransitioning(false), 800);
-      }, 50);
-    }
-  };
-
-  return (
-    <div className="app-container">
-      {/* Premium Background Aura */}
-      <div className="aura-field">
-        <div className="glow glow-1"></div>
-        <div className="glow glow-2"></div>
-        <div className="glow glow-3"></div>
-      </div>
+      {/* Main Content */}
+      <main className={`main-content ${isSessionActive ? 'active-session' : ''}`}>
+        {/* Ambient Aura */}
+        <div className="aura-field">
+          <div className="glow glow-1"></div>
+          <div className="glow glow-2"></div>
+          <div className="glow glow-3"></div>
+        </div>
 
       {/* Theme Transition Overlay */}
       <div className={`theme-wave ${isTransitioning ? 'animate' : ''}`}></div>
@@ -436,28 +409,60 @@ const AppInner = () => {
         )}
       </button>
 
-      {/* Sidebar with Toggle State */}
-      <AppSidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+        {/* Hero Section */}
+        {!isSessionActive && (
+          <div className="logo-container">
+            <div className="logo-text">tekton.</div>
+            <h1 className="hero-text">Resume<br />Analyzer</h1>
+          </div>
+        )}
 
-      <Routes>
-        <Route path="/" element={
-          <main className="main-content">
-            <div className="logo-container">
-              <div className="logo-text">tekton.</div>
-              <h1 className="hero-text">Evolutionary AI<br/>Intelligence</h1>
-              <p style={{ opacity: 0.6, marginTop: '20px' }}>Select a specialized tool to begin.</p>
+        {/* Chat Area */}
+        <div className="chat-display" ref={chatDisplayRef}>
+          {messages.map((msg, idx) => (
+            <div key={idx} className={`message-bubble ${msg.role}`}>
+              <div className="message-content">
+                <p>{msg.content}</p>
+              </div>
             </div>
-          </main>
-        } />
-        <Route path="/analyzer" element={<Workspace />} />
-        <Route path="/analyzer/:sessionId" element={<Workspace />} />
-        <Route path="/resumebuilder" element={<Workspace />} />
-        <Route path="/resumebuilder/:sessionId" element={<Workspace />} />
-        <Route path="/jobs" element={<Workspace />} />
-        <Route path="/jobs/:sessionId" element={<Workspace />} />
-        <Route path="/grammar" element={<Workspace />} />
-        <Route path="/grammar/:sessionId" element={<Workspace />} />
-      </Routes>
+          ))}
+          {isTyping && (
+            <div className="message-bubble bot">
+              <div className="message-content">
+                <p>Thinking...</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input Area */}
+        <div className="input-pill-container">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#86868b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            ref={inputRef}
+            type="text" 
+            className="user-input" 
+            placeholder={activeTab === 'analyzer' ? "Paste your resume or ask for feedback..." : "Ask anything..."} 
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            autoComplete="off"
+          />
+          <button className="send-action" onClick={handleSend} disabled={isTyping}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div className="sub-actions">
+          <span>Explore premium features? <a className="action-link" href="#">Get Tekton Pro &rarr;</a></span>
+        </div>
+      </main>
     </div>
   );
 };
