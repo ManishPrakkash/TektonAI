@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import GrammarCheck from './GrammarCheck';
+import FormatChecker from './FormatChecker';
 
 interface Message {
   role: 'user' | 'bot';
@@ -181,6 +182,13 @@ function App() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
             Grammar Check
           </div>
+          <div 
+            className={`nav-item ${activeTab === 'format' ? 'active' : ''}`}
+            onClick={() => setActiveTab('format')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            Format Checker
+          </div>
         </nav>
 
         <div className="sidebar-footer">
@@ -189,7 +197,7 @@ function App() {
       </aside>
 
       {/* Main Content */}
-      <main className={`main-content ${isSessionActive ? 'active-session' : ''} ${activeTab === 'grammar' ? 'grammar-mode' : ''}`}>
+      <main className={`main-content ${isSessionActive ? 'active-session' : ''} ${activeTab === 'grammar' || activeTab === 'format' ? 'grammar-mode' : ''}`}>
         {/* Ambient Aura */}
         <div className="aura-field">
           <div className="glow glow-1"></div>
@@ -214,9 +222,11 @@ function App() {
           )}
         </button>
 
-        {/* Grammar Check Tab */}
+        {/* Tool Tabs */}
         {activeTab === 'grammar' ? (
           <GrammarCheck />
+        ) : activeTab === 'format' ? (
+          <FormatChecker />
         ) : (
           <>
             {/* Hero Section */}
