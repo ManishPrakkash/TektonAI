@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import GrammarCheck from './GrammarCheck';
 import FormatChecker from './FormatChecker';
+import Questioner from './Questioner';
 
 interface Message {
   role: 'user' | 'bot';
@@ -37,13 +38,13 @@ function App() {
     const dots = graphRef.current?.querySelectorAll('circle');
     if (dots) {
       dots.forEach((dot, index) => {
-        const delay = index * 200;
+        const delay = index * 20000;
         dot.animate([
           { transform: 'translate(0, 0)', opacity: 0.1 },
           { transform: 'translate(20px, -10px)', opacity: 0.3 },
           { transform: 'translate(0, 0)', opacity: 0.1 }
         ], {
-          duration: 5000 + delay,
+          duration: 50000 + delay,
           iterations: Infinity,
           easing: 'ease-in-out'
         });
@@ -189,6 +190,13 @@ function App() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
             Format Checker
           </div>
+          <div 
+            className={`nav-item ${activeTab === 'questioner' ? 'active' : ''}`}
+            onClick={() => setActiveTab('questioner')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Questioner
+          </div>
         </nav>
 
         <div className="sidebar-footer">
@@ -197,7 +205,7 @@ function App() {
       </aside>
 
       {/* Main Content */}
-      <main className={`main-content ${isSessionActive ? 'active-session' : ''} ${activeTab === 'grammar' || activeTab === 'format' ? 'grammar-mode' : ''}`}>
+      <main className={`main-content ${isSessionActive ? 'active-session' : ''} ${activeTab === 'grammar' || activeTab === 'format' || activeTab === 'questioner' ? 'grammar-mode' : ''}`}>
         {/* Ambient Aura */}
         <div className="aura-field">
           <div className="glow glow-1"></div>
@@ -227,6 +235,8 @@ function App() {
           <GrammarCheck />
         ) : activeTab === 'format' ? (
           <FormatChecker />
+        ) : activeTab === 'questioner' ? (
+          <Questioner />
         ) : (
           <>
             {/* Hero Section */}
