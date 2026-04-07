@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './App.css';
+import GrammarCheck from './GrammarCheck';
+import FormatChecker from './FormatChecker';
 
 interface Message {
   role: 'user' | 'bot';
@@ -180,6 +182,13 @@ function App() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
             Grammar Check
           </div>
+          <div 
+            className={`nav-item ${activeTab === 'format' ? 'active' : ''}`}
+            onClick={() => setActiveTab('format')}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            Format Checker
+          </div>
         </nav>
 
         <div className="sidebar-footer">
@@ -188,7 +197,7 @@ function App() {
       </aside>
 
       {/* Main Content */}
-      <main className={`main-content ${isSessionActive ? 'active-session' : ''}`}>
+      <main className={`main-content ${isSessionActive ? 'active-session' : ''} ${activeTab === 'grammar' || activeTab === 'format' ? 'grammar-mode' : ''}`}>
         {/* Ambient Aura */}
         <div className="aura-field">
           <div className="glow glow-1"></div>
@@ -213,59 +222,68 @@ function App() {
           )}
         </button>
 
-        {/* Hero Section */}
-        {!isSessionActive && (
-          <div className="logo-container">
-            <div className="logo-text">tekton.</div>
-            <h1 className="hero-text">Resume<br />Analyzer</h1>
-          </div>
+        {/* Tool Tabs */}
+        {activeTab === 'grammar' ? (
+          <GrammarCheck />
+        ) : activeTab === 'format' ? (
+          <FormatChecker />
+        ) : (
+          <>
+            {/* Hero Section */}
+            {!isSessionActive && (
+              <div className="logo-container">
+                <div className="logo-text">tekton.</div>
+                <h1 className="hero-text">Resume<br />Analyzer</h1>
+              </div>
+            )}
+
+            {/* Chat Area */}
+            <div className="chat-display" ref={chatDisplayRef}>
+              {messages.map((msg, idx) => (
+                <div key={idx} className={`message-bubble ${msg.role}`}>
+                  <div className="message-content">
+                    <p>{msg.content}</p>
+                  </div>
+                </div>
+              ))}
+              {isTyping && (
+                <div className="message-bubble bot">
+                  <div className="message-content">
+                    <p>Thinking...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Input Area */}
+            <div className="input-pill-container">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#86868b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input 
+                ref={inputRef}
+                type="text" 
+                className="user-input" 
+                placeholder={activeTab === 'analyzer' ? "Paste your resume or ask for feedback..." : "Ask anything..."} 
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                autoComplete="off"
+              />
+              <button className="send-action" onClick={handleSend} disabled={isTyping}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="19" x2="12" y2="5"></line>
+                  <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+              </button>
+            </div>
+
+            <div className="sub-actions">
+              <span>Explore premium features? <a className="action-link" href="#">Get Tekton Pro &rarr;</a></span>
+            </div>
+          </>
         )}
-
-        {/* Chat Area */}
-        <div className="chat-display" ref={chatDisplayRef}>
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`message-bubble ${msg.role}`}>
-              <div className="message-content">
-                <p>{msg.content}</p>
-              </div>
-            </div>
-          ))}
-          {isTyping && (
-            <div className="message-bubble bot">
-              <div className="message-content">
-                <p>Thinking...</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Input Area */}
-        <div className="input-pill-container">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#86868b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input 
-            ref={inputRef}
-            type="text" 
-            className="user-input" 
-            placeholder={activeTab === 'analyzer' ? "Paste your resume or ask for feedback..." : "Ask anything..."} 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            autoComplete="off"
-          />
-          <button className="send-action" onClick={handleSend} disabled={isTyping}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="19" x2="12" y2="5"></line>
-              <polyline points="5 12 12 5 19 12"></polyline>
-            </svg>
-          </button>
-        </div>
-
-        <div className="sub-actions">
-          <span>Explore premium features? <a className="action-link" href="#">Get Tekton Pro &rarr;</a></span>
-        </div>
       </main>
     </div>
   );
